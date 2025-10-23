@@ -65,20 +65,36 @@ exports.activeMembers = async (req, res) => {
 };
 
 // 🟢 3. Book Availability Summary
+
 exports.bookAvailability = async (req, res) => {
   try {
-    const totalBooks = await Book.countDocuments();
+    const summary = await Book.aggregate([
+      {
+        $group: {
+          _id: "$genre",
+          totalBooks: { $sum: 1 },
+          totalCopies: { $sum: "$copies" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          genre: "$_id",
+          totalBooks: 1,
+          totalCopies: 1
+        }
+      }
+    ]);
+
     const totalBorrowed = await Borrow.countDocuments({ returnedAt: { $exists: false } });
-    const availableBooks = totalBooks - totalBorrowed;
 
-    const summary = {
-      totalBooks,
+    res.json({
+      message: "Book Availability Summary",
       totalBorrowed,
-      availableBooks
-    };
-
-    res.json({ message: "Book Availability Summary", summary });
+      summary
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
