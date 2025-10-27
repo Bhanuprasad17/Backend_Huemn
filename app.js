@@ -22,6 +22,6 @@ app.use('/api/books',bookRouter);
 app.use('/api/borrow',borrowRouter);
 app.use('/api/reports',reportRoutes)
 
-app.get('/',(req,res)=>res.send("Nalanda Library Backend Running"));
+app.get('/',(req,res)=>res.send("Book Library Backend Running"));
 
 module.exports = app;
